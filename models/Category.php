@@ -7,7 +7,7 @@ class Category {
 
     public function __construct() {
         $db = MongoDB::getInstance();
-        $this->collection = $db->getCollection('categories');
+        $this->collection = $db->selectCollection('categories');
         
         // Create unique index on name
         try {

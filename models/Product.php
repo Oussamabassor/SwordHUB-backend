@@ -7,7 +7,7 @@ class Product {
 
     public function __construct() {
         $db = MongoDB::getInstance();
-        $this->collection = $db->getCollection('products');
+        $this->collection = $db->selectCollection('products');
     }
 
     public function create($data) {

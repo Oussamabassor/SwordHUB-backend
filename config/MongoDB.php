@@ -24,30 +24,15 @@ class MongoDB {
             
             // Add SSL/TLS options if using MongoDB Atlas (mongodb+srv://)
             if (strpos($uri, 'mongodb+srv://') !== false || strpos($uri, 'mongodb://') !== false && strpos($uri, 'mongodb.net') !== false) {
-                // Stream context for better TLS control
-                $context = [
-                    'ssl' => [
-                        'verify_peer' => false,
-                        'verify_peer_name' => false,
-                        'allow_self_signed' => true,
-                        'ciphers' => 'DEFAULT@SECLEVEL=1'
-                    ]
-                ];
-                
+                // Use only URI options (not deprecated driver options)
                 $uriOptions = [
                     'tls' => true,
                     'tlsAllowInvalidCertificates' => true,
                     'tlsAllowInvalidHostnames' => true,
                 ];
-                
-                $driverOptions = [
-                    'allow_invalid_hostname' => true,
-                    'weak_cert_validation' => true,
-                    'context' => stream_context_create($context),
-                ];
             }
             
-            // Create client with options
+            // Create client with options (no driver options to avoid deprecation warnings)
             $this->client = new MongoDB\Client($uri, $uriOptions, $driverOptions);
             $this->database = $this->client->selectDatabase($dbName);
             
@@ -71,7 +56,7 @@ class MongoDB {
         if (self::$instance === null) {
             self::$instance = new self();
         }
-        return self::$instance;
+        return self::$instance->database;
     }
 
     public function getDatabase() {

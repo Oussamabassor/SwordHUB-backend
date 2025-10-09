@@ -7,7 +7,7 @@ class Order {
 
     public function __construct() {
         $db = MongoDB::getInstance();
-        $this->collection = $db->getCollection('orders');
+        $this->collection = $db->selectCollection('orders');
     }
 
     public function create($data) {
@@ -75,7 +75,24 @@ class Order {
             $query['createdAt']['$lte'] = new MongoDB\BSON\UTCDateTime(strtotime($filters['endDate']) * 1000);
         }
 
-        return $this->collection->find($query, $options)->toArray();
+        // Pagination
+        $page = isset($filters['page']) ? max(1, (int)$filters['page']) : 1;
+        $limit = isset($filters['limit']) ? max(1, min(100, (int)$filters['limit'])) : 50;
+        $skip = ($page - 1) * $limit;
+
+        $options['limit'] = $limit;
+        $options['skip'] = $skip;
+
+        $orders = $this->collection->find($query, $options)->toArray();
+        $total = $this->collection->countDocuments($query);
+        $pages = ceil($total / $limit);
+
+        return [
+            'orders' => $orders,
+            'total' => $total,
+            'page' => $page,
+            'pages' => $pages
+        ];
     }
 
     public function findById($id) {

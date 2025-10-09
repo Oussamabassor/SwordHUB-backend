@@ -22,7 +22,10 @@ class CategoryController {
         http_response_code(200);
         echo json_encode([
             'success' => true,
-            'data' => $categories
+            'data' => [
+                'categories' => $categories,
+                'total' => count($categories)
+            ]
         ]);
     }
 

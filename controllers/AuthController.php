@@ -149,6 +149,15 @@ class AuthController {
                 'role' => 'customer'
             ]);
 
+            // Generate JWT token for auto-login after registration
+            $token = JWT::encode([
+                'userId' => (string)$user['_id'],
+                'email' => $user['email'],
+                'role' => $user['role']
+            ]);
+
+            // Remove password from response
+            unset($user['password']);
             $user['id'] = (string)$user['_id'];
             unset($user['_id']);
 
@@ -156,7 +165,8 @@ class AuthController {
             echo json_encode([
                 'success' => true,
                 'message' => 'User registered successfully',
-                'data' => $user
+                'token' => $token,
+                'user' => $user
             ]);
         } catch (Exception $e) {
             http_response_code(400);

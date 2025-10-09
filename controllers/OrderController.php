@@ -15,13 +15,15 @@ class OrderController {
         $filters = [
             'status' => $_GET['status'] ?? null,
             'startDate' => $_GET['startDate'] ?? null,
-            'endDate' => $_GET['endDate'] ?? null
+            'endDate' => $_GET['endDate'] ?? null,
+            'page' => $_GET['page'] ?? 1,
+            'limit' => $_GET['limit'] ?? 50
         ];
 
-        $orders = $this->orderModel->findAll($filters);
+        $result = $this->orderModel->findAll($filters);
 
         // Convert MongoDB ObjectIds to strings
-        foreach ($orders as &$order) {
+        foreach ($result['orders'] as &$order) {
             $order['id'] = (string)$order['_id'];
             unset($order['_id']);
         }
@@ -29,7 +31,7 @@ class OrderController {
         http_response_code(200);
         echo json_encode([
             'success' => true,
-            'data' => $orders
+            'data' => $result
         ]);
     }
 

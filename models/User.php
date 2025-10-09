@@ -7,7 +7,7 @@ class User {
 
     public function __construct() {
         $db = MongoDB::getInstance();
-        $this->collection = $db->getCollection('users');
+        $this->collection = $db->selectCollection('users');
         
         // Create unique index on email
         try {
