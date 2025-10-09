@@ -1,0 +1,125 @@
+<?php
+
+// Error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/error.log');
+
+// Load dependencies
+require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/middleware/ErrorMiddleware.php';
+require_once __DIR__ . '/routes/AuthRoutes.php';
+require_once __DIR__ . '/routes/ProductRoutes.php';
+require_once __DIR__ . '/routes/CategoryRoutes.php';
+require_once __DIR__ . '/routes/OrderRoutes.php';
+require_once __DIR__ . '/routes/DashboardRoutes.php';
+
+// Set error handlers
+set_exception_handler(['ErrorMiddleware', 'handleException']);
+set_error_handler(['ErrorMiddleware', 'handleError']);
+
+// Load environment variables
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+// CORS Configuration
+$allowedOrigins = [
+    $_ENV['FRONTEND_URL'] ?? 'http://localhost:5173',
+    'http://localhost:5173',
+    'http://localhost:3000'
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowedOrigins)) {
+    header("Access-Control-Allow-Origin: $origin");
+} else {
+    header("Access-Control-Allow-Origin: " . $allowedOrigins[0]);
+}
+
+header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Max-Age: 3600");
+
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+// Set JSON content type
+header("Content-Type: application/json; charset=UTF-8");
+
+// Get request method and URI
+$method = $_SERVER['REQUEST_METHOD'];
+$requestUri = $_SERVER['REQUEST_URI'];
+
+// Remove query string and parse path
+$path = parse_url($requestUri, PHP_URL_PATH);
+$path = str_replace('/api', '', $path);
+
+// Router
+try {
+    // Health check
+    if ($path === '/health' && $method === 'GET') {
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'message' => 'Server is running',
+            'timestamp' => time()
+        ]);
+        exit();
+    }
+
+    // Auth routes
+    if (strpos($path, '/auth') === 0) {
+        $authRoutes = new AuthRoutes();
+        $subPath = substr($path, 5); // Remove '/auth'
+        if ($authRoutes->handle($method, $subPath)) {
+            exit();
+        }
+    }
+
+    // Product routes
+    if (strpos($path, '/products') === 0) {
+        $productRoutes = new ProductRoutes();
+        $subPath = substr($path, 9); // Remove '/products'
+        if ($productRoutes->handle($method, $subPath, $_GET)) {
+            exit();
+        }
+    }
+
+    // Category routes
+    if (strpos($path, '/categories') === 0) {
+        $categoryRoutes = new CategoryRoutes();
+        $subPath = substr($path, 11); // Remove '/categories'
+        if ($categoryRoutes->handle($method, $subPath)) {
+            exit();
+        }
+    }
+
+    // Order routes
+    if (strpos($path, '/orders') === 0) {
+        $orderRoutes = new OrderRoutes();
+        $subPath = substr($path, 7); // Remove '/orders'
+        if ($orderRoutes->handle($method, $subPath)) {
+            exit();
+        }
+    }
+
+    // Dashboard routes
+    if (strpos($path, '/dashboard') === 0) {
+        $dashboardRoutes = new DashboardRoutes();
+        $subPath = substr($path, 10); // Remove '/dashboard'
+        if ($dashboardRoutes->handle($method, $subPath)) {
+            exit();
+        }
+    }
+
+    // If no route matched
+    ErrorMiddleware::notFound();
+
+} catch (Exception $e) {
+    ErrorMiddleware::handleException($e);
+}
