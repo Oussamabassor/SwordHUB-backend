@@ -1,14 +1,38 @@
 <?php
 
 require_once __DIR__ . '/../models/Product.php';
+require_once __DIR__ . '/../models/Category.php';
 require_once __DIR__ . '/../utils/Validator.php';
 require_once __DIR__ . '/../utils/FileUpload.php';
 
 class ProductController {
     private $productModel;
+    private $categoryModel;
+    private $categoriesCache = null;
 
     public function __construct() {
         $this->productModel = new Product();
+        $this->categoryModel = new Category();
+    }
+
+    private function loadCategoriesCache() {
+        if ($this->categoriesCache === null) {
+            $categories = $this->categoryModel->findAll();
+            $this->categoriesCache = [];
+            foreach ($categories as $category) {
+                $this->categoriesCache[(string)$category['_id']] = $category['name'];
+            }
+        }
+    }
+
+    private function populateCategoryName(&$product) {
+        if (isset($product['category'])) {
+            $this->loadCategoriesCache();
+            if (isset($this->categoriesCache[$product['category']])) {
+                $product['categoryId'] = $product['category'];
+                $product['category'] = $this->categoriesCache[$product['category']];
+            }
+        }
     }
 
     public function getAll() {
@@ -24,10 +48,11 @@ class ProductController {
 
         $result = $this->productModel->findAll($filters);
 
-        // Convert MongoDB ObjectIds to strings
+        // Convert MongoDB ObjectIds to strings and populate category names
         foreach ($result['products'] as &$product) {
             $product['id'] = (string)$product['_id'];
             unset($product['_id']);
+            $this->populateCategoryName($product);
         }
 
         http_response_code(200);
@@ -51,6 +76,7 @@ class ProductController {
 
         $product['id'] = (string)$product['_id'];
         unset($product['_id']);
+        $this->populateCategoryName($product);
 
         http_response_code(200);
         echo json_encode([
