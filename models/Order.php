@@ -15,13 +15,20 @@ class Order {
         $total = 0;
         $productModel = new Product();
         
+        // Log incoming data for debugging
+        error_log("Creating order with data: " . json_encode($data));
+        
         $items = [];
         foreach ($data['items'] as $item) {
+            error_log("Looking up product with ID: " . $item['productId']);
             $product = $productModel->findById($item['productId']);
             
             if (!$product) {
+                error_log("Product not found for ID: " . $item['productId']);
                 throw new Exception("Product not found: " . $item['productId']);
             }
+            
+            error_log("Product found: " . json_encode($product));
             
             if ($product['stock'] < $item['quantity']) {
                 throw new Exception("Insufficient stock for product: " . $product['name']);

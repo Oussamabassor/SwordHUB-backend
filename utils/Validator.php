@@ -4,7 +4,11 @@ class Validator {
     public static function validateRequired($data, $fields) {
         $errors = [];
         foreach ($fields as $field) {
-            if (!isset($data[$field]) || empty(trim($data[$field]))) {
+            if (!isset($data[$field])) {
+                $errors[$field] = ucfirst($field) . " is required";
+            } elseif (is_string($data[$field]) && empty(trim($data[$field]))) {
+                $errors[$field] = ucfirst($field) . " is required";
+            } elseif (is_array($data[$field]) && empty($data[$field])) {
                 $errors[$field] = ucfirst($field) . " is required";
             }
         }
