@@ -22,10 +22,18 @@ class OrderController {
 
         $result = $this->orderModel->findAll($filters);
 
-        // Convert MongoDB ObjectIds to strings
+        // Convert MongoDB ObjectIds and dates to strings
         foreach ($result['orders'] as &$order) {
             $order['id'] = (string)$order['_id'];
             unset($order['_id']);
+            
+            // Convert MongoDB UTCDateTime to ISO string
+            if (isset($order['createdAt']) && $order['createdAt'] instanceof MongoDB\BSON\UTCDateTime) {
+                $order['createdAt'] = $order['createdAt']->toDateTime()->format('c');
+            }
+            if (isset($order['updatedAt']) && $order['updatedAt'] instanceof MongoDB\BSON\UTCDateTime) {
+                $order['updatedAt'] = $order['updatedAt']->toDateTime()->format('c');
+            }
         }
 
         http_response_code(200);
@@ -49,6 +57,14 @@ class OrderController {
 
         $order['id'] = (string)$order['_id'];
         unset($order['_id']);
+        
+        // Convert MongoDB UTCDateTime to ISO string
+        if (isset($order['createdAt']) && $order['createdAt'] instanceof MongoDB\BSON\UTCDateTime) {
+            $order['createdAt'] = $order['createdAt']->toDateTime()->format('c');
+        }
+        if (isset($order['updatedAt']) && $order['updatedAt'] instanceof MongoDB\BSON\UTCDateTime) {
+            $order['updatedAt'] = $order['updatedAt']->toDateTime()->format('c');
+        }
 
         http_response_code(200);
         echo json_encode([
@@ -104,6 +120,14 @@ class OrderController {
 
             $order['id'] = (string)$order['_id'];
             unset($order['_id']);
+            
+            // Convert MongoDB UTCDateTime to ISO string
+            if (isset($order['createdAt']) && $order['createdAt'] instanceof MongoDB\BSON\UTCDateTime) {
+                $order['createdAt'] = $order['createdAt']->toDateTime()->format('c');
+            }
+            if (isset($order['updatedAt']) && $order['updatedAt'] instanceof MongoDB\BSON\UTCDateTime) {
+                $order['updatedAt'] = $order['updatedAt']->toDateTime()->format('c');
+            }
 
             http_response_code(201);
             echo json_encode([

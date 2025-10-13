@@ -19,10 +19,18 @@ class DashboardController {
         $orderStats = $this->orderModel->getStats();
         $recentOrders = $this->orderModel->getRecentOrders(5);
 
-        // Convert ObjectIds to strings for recent orders
+        // Convert ObjectIds and dates to strings for recent orders
         foreach ($recentOrders as &$order) {
             $order['id'] = (string)$order['_id'];
             unset($order['_id']);
+            
+            // Convert MongoDB UTCDateTime to ISO string
+            if (isset($order['createdAt']) && $order['createdAt'] instanceof MongoDB\BSON\UTCDateTime) {
+                $order['createdAt'] = $order['createdAt']->toDateTime()->format('c');
+            }
+            if (isset($order['updatedAt']) && $order['updatedAt'] instanceof MongoDB\BSON\UTCDateTime) {
+                $order['updatedAt'] = $order['updatedAt']->toDateTime()->format('c');
+            }
         }
 
         $stats = [

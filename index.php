@@ -1,5 +1,26 @@
 <?php
 
+// Serve static files from uploads directory
+if (php_sapi_name() === 'cli-server') {
+    $requestUri = $_SERVER['REQUEST_URI'];
+    $path = parse_url($requestUri, PHP_URL_PATH);
+    
+    // Check if this is a request for an uploaded file
+    if (preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $path)) {
+        // Remove leading slash and ./
+        $filePath = ltrim($path, '/');
+        $filePath = str_replace('./', '', $filePath);
+        
+        if (file_exists($filePath)) {
+            $mimeType = mime_content_type($filePath);
+            header("Content-Type: $mimeType");
+            header("Content-Length: " . filesize($filePath));
+            readfile($filePath);
+            exit();
+        }
+    }
+}
+
 // Error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
