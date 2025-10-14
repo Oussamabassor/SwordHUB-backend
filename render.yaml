@@ -1,12 +1,11 @@
 services:
   - type: web
     name: swordhub-backend
-    runtime: docker
     plan: free
     region: oregon
-    dockerfilePath: ./Dockerfile
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: php -S 0.0.0.0:$PORT -t .
     healthCheckPath: /health
-    healthCheckTimeout: 300
     autoDeploy: true
     envVars:
       - key: MONGODB_URI
