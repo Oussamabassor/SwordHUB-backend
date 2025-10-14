@@ -1,0 +1,15 @@
+node_modules
+.git
+.env
+.env.local
+uploads
+vendor
+*.log
+.DS_Store
+.vscode
+.idea
+tests
+.gitignore
+README.md
+*.md
+.renderignore

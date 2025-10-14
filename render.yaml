@@ -1,12 +1,11 @@
 services:
   - type: web
     name: swordhub-backend
-    env: php
+    runtime: docker
     plan: free
     region: oregon
-    buildCommand: composer install --no-dev --optimize-autoloader
-    startCommand: php -S 0.0.0.0:$PORT -t .
-    healthCheckPath: /
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
     healthCheckTimeout: 300
     autoDeploy: true
     envVars:
