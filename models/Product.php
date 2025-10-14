@@ -100,7 +100,13 @@ class Product {
         if (isset($data['description'])) $updateData['description'] = $data['description'];
         if (isset($data['price'])) $updateData['price'] = (float)$data['price'];
         if (isset($data['category'])) $updateData['category'] = $data['category'];
-        if (isset($data['stock'])) $updateData['stock'] = (int)$data['stock'];
+        if (isset($data['stock'])) {
+            $updateData['stock'] = (int)$data['stock'];
+            // If stock is set to 0, automatically set featured to false
+            if ((int)$data['stock'] === 0) {
+                $updateData['featured'] = false;
+            }
+        }
         if (isset($data['image'])) $updateData['image'] = $data['image'];
         if (isset($data['featured'])) $updateData['featured'] = (bool)$data['featured'];
 
@@ -117,10 +123,27 @@ class Product {
 
     public function updateStock($id, $quantity) {
         try {
+            // Decrement stock
             $result = $this->collection->updateOne(
                 ['_id' => new MongoDB\BSON\ObjectId($id)],
                 ['$inc' => ['stock' => -$quantity]]
             );
+            
+            // Check if stock is now 0 or negative, and update featured to false
+            if ($result->getModifiedCount() > 0 || $result->getMatchedCount() > 0) {
+                $product = $this->findById($id);
+                if ($product && $product['stock'] <= 0) {
+                    // Set stock to 0 if it went negative and set featured to false
+                    $this->collection->updateOne(
+                        ['_id' => new MongoDB\BSON\ObjectId($id)],
+                        ['$set' => [
+                            'stock' => 0,
+                            'featured' => false
+                        ]]
+                    );
+                }
+            }
+            
             return $result->getModifiedCount() > 0;
         } catch (Exception $e) {
             return false;

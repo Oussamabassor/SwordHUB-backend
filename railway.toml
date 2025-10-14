@@ -1,0 +1,22 @@
+# Railway Deployment Configuration
+# Place this file in your backend root directory
+
+[build]
+builder = "nixpacks"
+buildCommand = "composer install --no-dev --optimize-autoloader"
+
+[deploy]
+startCommand = "php -S 0.0.0.0:$PORT -t ."
+healthcheckPath = "/api/products"
+healthcheckTimeout = 300
+restartPolicyType = "always"
+
+[env]
+# These will be set in Railway dashboard
+# MONGODB_URI
+# DB_NAME
+# JWT_SECRET
+# CORS_ORIGIN
+# CLOUDINARY_CLOUD_NAME (optional)
+# CLOUDINARY_API_KEY (optional)
+# CLOUDINARY_API_SECRET (optional)

@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: swordhub-backend
+    env: php
+    plan: free
+    region: oregon
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: php -S 0.0.0.0:$PORT -t .
+    healthCheckPath: /
+    healthCheckTimeout: 300
+    autoDeploy: true
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DATABASE
+        value: swordhub
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRE
+        value: 86400
+      - key: FRONTEND_URL
+        sync: false
+      - key: APP_ENV
+        value: production
+      # Cloudinary Configuration
+      - key: USE_CLOUDINARY
+        value: true
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: CLOUDINARY_FOLDER
+        value: swordhub/products
+      # File Upload
+      - key: UPLOAD_DIR
+        value: ./uploads
+      - key: MAX_FILE_SIZE
+        value: 5242880
