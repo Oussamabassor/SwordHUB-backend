@@ -1,10 +1,10 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
-    # Remove trailing slashes from URLs (except directories)
+    # Remove trailing slashes from URLs (internal rewrite, not redirect)
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
-    RewriteRule ^ %1 [R=301,L]
+    RewriteRule ^(.*)/$ /$1 [L]
     
     # Handle OPTIONS requests for CORS preflight
     RewriteCond %{REQUEST_METHOD} OPTIONS
