@@ -127,6 +127,17 @@ try {
     
     // Debug endpoint to check environment variables
     if ($path === '/debug' && $method === 'GET') {
+        try {
+            // Test MongoDB connection
+            require_once __DIR__ . '/config/MongoDB.php';
+            $mongodb = MongoDB::getInstance();
+            $mongoStatus = 'Connected ✓';
+            $mongoError = null;
+        } catch (Exception $e) {
+            $mongoStatus = 'Failed ✗';
+            $mongoError = $e->getMessage();
+        }
+        
         http_response_code(200);
         echo json_encode([
             'success' => true,
@@ -135,6 +146,10 @@ try {
                 'MONGODB_DATABASE' => !empty($_ENV['MONGODB_DATABASE']) || !empty(getenv('MONGODB_DATABASE')) ? 'Set ✓' : 'Missing ✗',
                 'JWT_SECRET' => !empty($_ENV['JWT_SECRET']) || !empty(getenv('JWT_SECRET')) ? 'Set ✓' : 'Missing ✗',
                 'CLOUDINARY_CLOUD_NAME' => !empty($_ENV['CLOUDINARY_CLOUD_NAME']) || !empty(getenv('CLOUDINARY_CLOUD_NAME')) ? 'Set ✓' : 'Missing ✗',
+            ],
+            'mongodb_connection' => [
+                'status' => $mongoStatus,
+                'error' => $mongoError
             ],
             'php_version' => phpversion(),
             'extensions' => [
