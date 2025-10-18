@@ -41,7 +41,9 @@ class Order {
                 'productId' => $item['productId'],
                 'productName' => $product['name'],
                 'quantity' => (int)$item['quantity'],
-                'price' => (float)$product['price']
+                'price' => (float)$product['price'],
+                'image' => $product['image'] ?? null,  // Include product image
+                'size' => $item['size'] ?? null  // Include size if provided
             ];
             
             // Reduce stock
@@ -156,17 +158,37 @@ class Order {
 
         $result = $this->collection->aggregate($pipeline)->toArray();
         
+        // Count unique clients by phone number
+        $uniqueClientsPipeline = [
+            [
+                '$match' => [
+                    'customerPhone' => ['$ne' => '', '$exists' => true]
+                ]
+            ],
+            [
+                '$group' => [
+                    '_id' => '$customerPhone'
+                ]
+            ],
+            [
+                '$count' => 'totalClients'
+            ]
+        ];
+        
+        $clientsResult = $this->collection->aggregate($uniqueClientsPipeline)->toArray();
+        $totalClients = !empty($clientsResult) ? $clientsResult[0]['totalClients'] : 0;
+        
         if (empty($result)) {
             return [
                 'totalOrders' => 0,
-                'pendingOrders' => 0,
+                'totalClients' => $totalClients,
                 'totalRevenue' => 0
             ];
         }
 
         return [
             'totalOrders' => $result[0]['totalOrders'],
-            'pendingOrders' => $result[0]['pendingOrders'],
+            'totalClients' => $totalClients,
             'totalRevenue' => round($result[0]['totalRevenue'], 2)
         ];
     }

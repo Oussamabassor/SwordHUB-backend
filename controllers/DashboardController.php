@@ -37,7 +37,7 @@ class DashboardController {
             'totalProducts' => $this->productModel->count(),
             'totalOrders' => $orderStats['totalOrders'],
             'totalRevenue' => $orderStats['totalRevenue'],
-            'pendingOrders' => $orderStats['pendingOrders'],
+            'totalClients' => $orderStats['totalClients'],
             'totalCategories' => count($this->categoryModel->findAll()),
             'recentOrders' => $recentOrders
         ];
