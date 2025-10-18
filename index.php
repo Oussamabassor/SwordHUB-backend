@@ -40,9 +40,16 @@ require_once __DIR__ . '/routes/DashboardRoutes.php';
 set_exception_handler(['ErrorMiddleware', 'handleException']);
 set_error_handler(['ErrorMiddleware', 'handleError']);
 
-// Load environment variables
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+// Load environment variables (optional in production - uses system env vars)
+try {
+    if (file_exists(__DIR__ . '/.env')) {
+        $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+        $dotenv->load();
+    }
+} catch (Exception $e) {
+    // In production, environment variables are set by the hosting platform
+    // Continue without .env file
+}
 
 // CORS Configuration
 $allowedOrigins = [
@@ -82,6 +89,26 @@ $path = str_replace('/api', '', $path);
 
 // Router
 try {
+    // Root endpoint
+    if ($path === '/' && $method === 'GET') {
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'message' => 'SwordHUB API is running!',
+            'version' => '1.0',
+            'endpoints' => [
+                'health' => '/health',
+                'auth' => '/api/auth',
+                'products' => '/api/products',
+                'categories' => '/api/categories',
+                'orders' => '/api/orders',
+                'dashboard' => '/api/dashboard'
+            ],
+            'timestamp' => time()
+        ]);
+        exit();
+    }
+
     // Health check
     if ($path === '/health' && $method === 'GET') {
         http_response_code(200);
