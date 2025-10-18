@@ -36,30 +36,40 @@ class ProductController {
     }
 
     public function getAll() {
-        $filters = [
-            'category' => $_GET['category'] ?? null,
-            'search' => $_GET['search'] ?? null,
-            'minPrice' => $_GET['minPrice'] ?? null,
-            'maxPrice' => $_GET['maxPrice'] ?? null,
-            'featured' => $_GET['featured'] ?? null,
-            'page' => $_GET['page'] ?? 1,
-            'limit' => $_GET['limit'] ?? 10
-        ];
+        try {
+            $filters = [
+                'category' => $_GET['category'] ?? null,
+                'search' => $_GET['search'] ?? null,
+                'minPrice' => $_GET['minPrice'] ?? null,
+                'maxPrice' => $_GET['maxPrice'] ?? null,
+                'featured' => $_GET['featured'] ?? null,
+                'page' => $_GET['page'] ?? 1,
+                'limit' => $_GET['limit'] ?? 10
+            ];
 
-        $result = $this->productModel->findAll($filters);
+            $result = $this->productModel->findAll($filters);
 
-        // Convert MongoDB ObjectIds to strings and populate category names
-        foreach ($result['products'] as &$product) {
-            $product['id'] = (string)$product['_id'];
-            unset($product['_id']);
-            $this->populateCategoryName($product);
+            // Convert MongoDB ObjectIds to strings and populate category names
+            foreach ($result['products'] as &$product) {
+                $product['id'] = (string)$product['_id'];
+                unset($product['_id']);
+                $this->populateCategoryName($product);
+            }
+
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'data' => $result
+            ]);
+        } catch (Exception $e) {
+            error_log("ProductController::getAll Error: " . $e->getMessage());
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Failed to fetch products',
+                'error' => $e->getMessage()
+            ]);
         }
-
-        http_response_code(200);
-        echo json_encode([
-            'success' => true,
-            'data' => $result
-        ]);
     }
 
     public function getById($id) {
