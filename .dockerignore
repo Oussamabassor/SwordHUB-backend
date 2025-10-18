@@ -3,7 +3,8 @@
 error_log
 access_log
 
-# Environment files
+# Environment files (keep .env.example for reference)
+.env
 .env.local
 .env.*.local
 
@@ -17,7 +18,7 @@ Thumbs.db
 *.swp
 *.swo
 
-# Composer
+# Composer - IMPORTANT: vendor is excluded, but composer.json and composer.lock MUST be included
 /vendor/
 
 # Local uploads (use Cloudinary in production)
@@ -32,6 +33,9 @@ phpunit.xml
 .git/
 .gitignore
 
-# Documentation (optional - remove if you want docs in production)
+# Documentation
 *.md
 !README.md
+
+# Node modules (if any)
+node_modules/

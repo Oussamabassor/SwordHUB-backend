@@ -28,11 +28,14 @@ RUN a2enmod rewrite headers
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
-COPY . /var/www/html
+# Copy composer files first
+COPY composer.json composer.lock /var/www/html/
 
 # Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+# Copy application files
+COPY . /var/www/html
 
 # Create uploads directory and set permissions
 RUN mkdir -p /var/www/html/uploads/products && \
