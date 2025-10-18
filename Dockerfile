@@ -40,10 +40,16 @@ COPY . /var/www/html
 # Create uploads directory and set permissions
 RUN mkdir -p /var/www/html/uploads/products && \
     chown -R www-data:www-data /var/www/html && \
+    chmod -R 755 /var/www/html && \
     chmod -R 755 /var/www/html/uploads
 
 # Configure Apache
 COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
+
+# Enable additional Apache modules and configure
+RUN a2enmod env setenvif && \
+    a2dissite 000-default && \
+    a2ensite 000-default
 
 # Expose port 80
 EXPOSE 80
