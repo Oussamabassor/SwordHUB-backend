@@ -10,12 +10,18 @@ class MongoDB {
     private $database;
 
     private function __construct() {
-        // Load environment variables
-        $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
-        $dotenv->load();
+        // Load environment variables (optional in production)
+        try {
+            if (file_exists(__DIR__ . '/../.env')) {
+                $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
+                $dotenv->load();
+            }
+        } catch (Exception $e) {
+            // In production, environment variables are set by the hosting platform
+        }
 
-        $uri = $_ENV['MONGODB_URI'] ?? 'mongodb://localhost:27017';
-        $dbName = $_ENV['MONGODB_DATABASE'] ?? 'swordhub';
+        $uri = $_ENV['MONGODB_URI'] ?? getenv('MONGODB_URI') ?? 'mongodb://localhost:27017';
+        $dbName = $_ENV['MONGODB_DATABASE'] ?? getenv('MONGODB_DATABASE') ?? 'swordhub';
 
         try {
             // Configure options for MongoDB connection
