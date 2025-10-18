@@ -22,8 +22,9 @@ RUN pecl install mongodb && docker-php-ext-enable mongodb
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Enable Apache modules
-RUN a2enmod rewrite headers
+# Enable Apache modules and disable autoindex
+RUN a2enmod rewrite headers env setenvif && \
+    a2dismod -f autoindex
 
 # Set working directory
 WORKDIR /var/www/html
