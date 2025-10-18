@@ -159,6 +159,42 @@ try {
         ]);
         exit();
     }
+    
+    // Test MongoDB query endpoint
+    if ($path === '/test-db' && $method === 'GET') {
+        try {
+            require_once __DIR__ . '/config/MongoDB.php';
+            $mongodb = MongoDB::getInstance();
+            $collection = $mongodb->getCollection('products');
+            
+            // Simple count query
+            $count = $collection->countDocuments();
+            
+            // Get first 3 products
+            $products = $collection->find([], ['limit' => 3])->toArray();
+            
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'message' => 'MongoDB query successful',
+                'products_count' => $count,
+                'sample_products' => count($products),
+                'first_product' => !empty($products) ? [
+                    'id' => (string)$products[0]['_id'],
+                    'name' => $products[0]['name'] ?? 'N/A'
+                ] : null
+            ]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'message' => 'MongoDB query failed',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+        exit();
+    }
 
     // Auth routes
     if (strpos($path, '/auth') === 0) {
