@@ -1,0 +1,37 @@
+# Logs
+*.log
+error_log
+access_log
+
+# Environment files
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Composer
+/vendor/
+
+# Local uploads (use Cloudinary in production)
+/uploads/products/*
+!/uploads/products/.gitkeep
+
+# Test files
+phpunit.xml
+.phpunit.result.cache
+
+# Git
+.git/
+.gitignore
+
+# Documentation (optional - remove if you want docs in production)
+*.md
+!README.md
