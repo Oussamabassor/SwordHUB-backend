@@ -6,8 +6,8 @@ class Product {
     private $collection;
 
     public function __construct() {
-        $db = MongoDB::getInstance();
-        $this->collection = $db->selectCollection('products');
+        $database = MongoDB::getInstance();
+        $this->collection = $database->selectCollection('products');
     }
 
     public function create($data) {

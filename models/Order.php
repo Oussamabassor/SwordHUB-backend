@@ -6,8 +6,8 @@ class Order {
     private $collection;
 
     public function __construct() {
-        $db = MongoDB::getInstance();
-        $this->collection = $db->selectCollection('orders');
+        $database = MongoDB::getInstance();
+        $this->collection = $database->selectCollection('orders');
     }
 
     public function create($data) {
