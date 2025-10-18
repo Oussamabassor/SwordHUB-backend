@@ -124,6 +124,26 @@ try {
         ]);
         exit();
     }
+    
+    // Debug endpoint to check environment variables
+    if ($path === '/debug' && $method === 'GET') {
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'env_check' => [
+                'MONGODB_URI' => !empty($_ENV['MONGODB_URI']) || !empty(getenv('MONGODB_URI')) ? 'Set ✓' : 'Missing ✗',
+                'MONGODB_DATABASE' => !empty($_ENV['MONGODB_DATABASE']) || !empty(getenv('MONGODB_DATABASE')) ? 'Set ✓' : 'Missing ✗',
+                'JWT_SECRET' => !empty($_ENV['JWT_SECRET']) || !empty(getenv('JWT_SECRET')) ? 'Set ✓' : 'Missing ✗',
+                'CLOUDINARY_CLOUD_NAME' => !empty($_ENV['CLOUDINARY_CLOUD_NAME']) || !empty(getenv('CLOUDINARY_CLOUD_NAME')) ? 'Set ✓' : 'Missing ✗',
+            ],
+            'php_version' => phpversion(),
+            'extensions' => [
+                'mongodb' => extension_loaded('mongodb') ? 'Loaded ✓' : 'Missing ✗',
+                'pdo' => extension_loaded('pdo') ? 'Loaded ✓' : 'Missing ✗',
+            ]
+        ]);
+        exit();
+    }
 
     // Auth routes
     if (strpos($path, '/auth') === 0) {
