@@ -85,6 +85,11 @@ $requestUri = $_SERVER['REQUEST_URI'];
 
 // Remove query string and parse path
 $path = parse_url($requestUri, PHP_URL_PATH);
+
+// Remove trailing slashes (except root)
+$path = $path !== '/' ? rtrim($path, '/') : $path;
+
+// Remove /api prefix for routing
 $path = str_replace('/api', '', $path);
 
 // Router
