@@ -1,5 +1,20 @@
 <?php
 
+// Quick test endpoint - responds immediately before any loading
+if (isset($_GET['quicktest']) || (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/quicktest') !== false)) {
+    header('Content-Type: application/json');
+    http_response_code(200);
+    echo json_encode([
+        'success' => true,
+        'message' => 'Quick test endpoint working',
+        'php_version' => PHP_VERSION,
+        'timestamp' => time(),
+        'autoload_exists' => file_exists(__DIR__ . '/vendor/autoload.php'),
+        'mongodb_config_exists' => file_exists(__DIR__ . '/config/MongoDB.php')
+    ]);
+    exit();
+}
+
 // Serve static files from uploads directory
 if (php_sapi_name() === 'cli-server') {
     $requestUri = $_SERVER['REQUEST_URI'];
@@ -21,9 +36,9 @@ if (php_sapi_name() === 'cli-server') {
     }
 }
 
-// Error reporting
+// Error reporting (display errors temporarily for debugging)
 error_reporting(E_ALL);
-ini_set('display_errors', 0);
+ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/error.log');
 
