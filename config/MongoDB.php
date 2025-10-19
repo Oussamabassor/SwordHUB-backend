@@ -24,26 +24,23 @@ class MongoDB {
         $dbName = $_ENV['MONGODB_DATABASE'] ?? getenv('MONGODB_DATABASE') ?? 'swordhub';
 
         try {
-            // Configure options for MongoDB connection
+            // Configure options for MongoDB connection (simplified)
             $uriOptions = [];
-            $driverOptions = [];
             
             // Add SSL/TLS options if using MongoDB Atlas (mongodb+srv://)
-            if (strpos($uri, 'mongodb+srv://') !== false || strpos($uri, 'mongodb://') !== false && strpos($uri, 'mongodb.net') !== false) {
-                // Use only URI options (not deprecated driver options)
+            if (strpos($uri, 'mongodb+srv://') !== false || strpos($uri, 'mongodb.net') !== false) {
                 $uriOptions = [
                     'tls' => true,
                     'tlsAllowInvalidCertificates' => true,
-                    'tlsAllowInvalidHostnames' => true,
                 ];
             }
             
-            // Create client with options (no driver options to avoid deprecation warnings)
-            $this->client = new MongoDB\Client($uri, $uriOptions, $driverOptions);
+            // Create client with simplified options (no driver options)
+            $this->client = new MongoDB\Client($uri, $uriOptions);
             $this->database = $this->client->selectDatabase($dbName);
             
-            // Test connection with timeout
-            $this->client->listDatabases(['maxTimeMS' => 5000]);
+            // Test connection with ping command
+            $this->database->command(['ping' => 1]);
             
             error_log("MongoDB Connection: Successfully connected to " . $dbName);
         } catch (Exception $e) {
