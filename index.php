@@ -51,24 +51,8 @@ try {
     // Continue without .env file
 }
 
-// CORS Configuration
-$allowedOrigins = [
-    $_ENV['FRONTEND_URL'] ?? 'http://localhost:5173',
-    'http://localhost:5173',
-    'http://localhost:3000'
-];
-
-$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if (in_array($origin, $allowedOrigins)) {
-    header("Access-Control-Allow-Origin: $origin");
-} else {
-    header("Access-Control-Allow-Origin: " . $allowedOrigins[0]);
-}
-
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Max-Age: 3600");
+// CORS headers are now handled by Apache in docker/000-default.conf
+// Removed duplicate CORS configuration to fix "multiple values" error
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -121,6 +105,19 @@ try {
             'success' => true,
             'message' => 'Server is running',
             'timestamp' => time()
+        ]);
+        exit();
+    }
+    
+    // Simple test endpoint (no dependencies)
+    if ($path === '/test' && $method === 'GET') {
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'message' => 'Simple test endpoint working',
+            'path' => $path,
+            'method' => $method,
+            'get_params' => $_GET
         ]);
         exit();
     }
