@@ -29,14 +29,18 @@ RUN a2enmod rewrite headers env setenvif && \
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy composer file
-COPY composer.json /var/www/html/
+# Copy application files FIRST (so composer can see the directories)
+COPY . /var/www/html
 
-# Install PHP dependencies (without lock file for Docker flexibility)
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --ignore-platform-reqs
 
-# Copy application files
-COPY . /var/www/html
+# Verify autoload was generated and show directory structure
+RUN ls -la /var/www/html/vendor/composer/ && \
+    echo "=== Checking autoload files ===" && \
+    ls -la /var/www/html/vendor/autoload.php && \
+    echo "=== Application directories ===" && \
+    ls -la /var/www/html/ | grep -E "(controllers|models|middleware|config|routes|utils)"
 
 # Create uploads directory and set permissions
 RUN mkdir -p /var/www/html/uploads/products && \
