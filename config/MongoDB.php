@@ -36,13 +36,14 @@ class MongoDB {
             }
             
             // Create client with simplified options (no driver options)
+            // Connection is lazy - will connect when first query is made
             $this->client = new MongoDB\Client($uri, $uriOptions);
             $this->database = $this->client->selectDatabase($dbName);
             
-            // Test connection with ping command
-            $this->database->command(['ping' => 1]);
+            // Don't test connection here - let it connect lazily on first query
+            // This avoids compatibility issues with command() method
             
-            error_log("MongoDB Connection: Successfully connected to " . $dbName);
+            error_log("MongoDB Connection: Client initialized for " . $dbName);
         } catch (Exception $e) {
             error_log("MongoDB Connection Error: " . $e->getMessage());
             
