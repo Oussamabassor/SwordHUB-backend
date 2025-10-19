@@ -9,12 +9,9 @@ class User {
         $database = MongoDB::getInstance();
         $this->collection = $database->selectCollection('users');
         
-        // Create unique index on email
-        try {
-            $this->collection->createIndex(['email' => 1], ['unique' => true]);
-        } catch (Exception $e) {
-            // Index might already exist
-        }
+        // Index creation disabled due to BSON compatibility issues
+        // You can create indexes manually in MongoDB Atlas if needed:
+        // db.users.createIndex({ email: 1 }, { unique: true })
     }
 
     public function create($data) {
