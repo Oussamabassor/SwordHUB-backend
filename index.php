@@ -193,6 +193,34 @@ try {
         exit();
     }
 
+    // Error log endpoint (for debugging)
+    if ($path === '/error-log' && $method === 'GET') {
+        http_response_code(200);
+        header('Content-Type: application/json');
+        
+        $logFile = __DIR__ . '/error.log';
+        if (file_exists($logFile)) {
+            $logContent = file_get_contents($logFile);
+            $lines = explode("\n", $logContent);
+            // Get last 50 lines
+            $recentLines = array_slice($lines, -50);
+            
+            echo json_encode([
+                'success' => true,
+                'log_file' => $logFile,
+                'total_lines' => count($lines),
+                'recent_errors' => implode("\n", $recentLines)
+            ]);
+        } else {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Error log file not found',
+                'expected_path' => $logFile
+            ]);
+        }
+        exit();
+    }
+
     // Auth routes
     if (strpos($path, '/auth') === 0) {
         $authRoutes = new AuthRoutes();
