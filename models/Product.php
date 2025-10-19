@@ -6,8 +6,19 @@ class Product {
     private $collection;
 
     public function __construct() {
-        $database = MongoDB::getInstance();
-        $this->collection = $database->selectCollection('products');
+        try {
+            error_log("Product model: Getting MongoDB instance...");
+            $database = MongoDB::getInstance();
+            error_log("Product model: MongoDB instance retrieved, type: " . get_class($database));
+            
+            error_log("Product model: Selecting products collection...");
+            $this->collection = $database->selectCollection('products');
+            error_log("Product model: Products collection selected successfully");
+        } catch (Exception $e) {
+            error_log("Product model __construct Error: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+            throw new Exception("Failed to initialize Product model: " . $e->getMessage());
+        }
     }
 
     public function create($data) {

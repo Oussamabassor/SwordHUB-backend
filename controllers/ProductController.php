@@ -11,8 +11,19 @@ class ProductController {
     private $categoriesCache = null;
 
     public function __construct() {
-        $this->productModel = new Product();
-        $this->categoryModel = new Category();
+        try {
+            error_log("ProductController: Initializing Product model...");
+            $this->productModel = new Product();
+            error_log("ProductController: Product model initialized successfully");
+            
+            error_log("ProductController: Initializing Category model...");
+            $this->categoryModel = new Category();
+            error_log("ProductController: Category model initialized successfully");
+        } catch (Exception $e) {
+            error_log("ProductController __construct Error: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+            throw $e; // Re-throw to be caught by ProductRoutes
+        }
     }
 
     private function loadCategoriesCache() {

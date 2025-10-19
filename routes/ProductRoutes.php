@@ -8,7 +8,21 @@ class ProductRoutes {
     private $controller;
 
     public function __construct() {
-        $this->controller = new ProductController();
+        try {
+            $this->controller = new ProductController();
+        } catch (Exception $e) {
+            error_log("ProductRoutes __construct Error: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Failed to initialize ProductController',
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            exit();
+        }
     }
 
     public function handle($method, $path, $params) {
