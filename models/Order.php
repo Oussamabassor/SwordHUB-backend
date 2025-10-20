@@ -42,7 +42,9 @@ class Order {
                 'productName' => $product['name'],
                 'quantity' => (int)$item['quantity'],
                 'price' => (float)$product['price'],
-                'image' => $product['image'] ?? null,  // Include product image
+                'image' => (isset($product['images']) && is_array($product['images']) && count($product['images']) > 0) 
+                    ? $product['images'][0] 
+                    : ($product['image'] ?? null),  // Use first image from images array, fallback to image field
                 'size' => $item['size'] ?? null  // Include size if provided
             ];
             
