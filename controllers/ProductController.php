@@ -151,6 +151,8 @@ class ProductController {
                 'category' => Validator::sanitizeString($data['category']),
                 'stock' => $data['stock'],
                 'image' => $data['image'] ?? '',
+                'images' => isset($data['images']) ? (array)$data['images'] : [],
+                'sizes' => isset($data['sizes']) ? (array)$data['sizes'] : [],
                 'featured' => $data['featured'] ?? false
             ]);
 
@@ -219,6 +221,8 @@ class ProductController {
             if (isset($data['category'])) $updateData['category'] = Validator::sanitizeString($data['category']);
             if (isset($data['stock'])) $updateData['stock'] = $data['stock'];
             if (isset($data['image'])) $updateData['image'] = $data['image'];
+            if (isset($data['images'])) $updateData['images'] = (array)$data['images'];
+            if (isset($data['sizes'])) $updateData['sizes'] = (array)$data['sizes'];
             if (isset($data['featured'])) $updateData['featured'] = $data['featured'];
 
             $this->productModel->update($id, $updateData);
