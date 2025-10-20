@@ -29,6 +29,8 @@ class Product {
             'category' => $data['category'],
             'stock' => (int)$data['stock'],
             'image' => $data['image'] ?? '',
+            'images' => isset($data['images']) ? (array)$data['images'] : [],
+            'sizes' => isset($data['sizes']) ? (array)$data['sizes'] : [],
             'featured' => isset($data['featured']) ? (bool)$data['featured'] : false,
             'createdAt' => new MongoDB\BSON\UTCDateTime(),
             'updatedAt' => new MongoDB\BSON\UTCDateTime()
@@ -119,6 +121,8 @@ class Product {
             }
         }
         if (isset($data['image'])) $updateData['image'] = $data['image'];
+        if (isset($data['images'])) $updateData['images'] = (array)$data['images'];
+        if (isset($data['sizes'])) $updateData['sizes'] = (array)$data['sizes'];
         if (isset($data['featured'])) $updateData['featured'] = (bool)$data['featured'];
 
         try {
